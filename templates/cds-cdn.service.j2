@@ -1,0 +1,11 @@
+[Unit]
+Description="CDS CDN"
+
+[Service]
+User={{ run_user }}
+WorkingDirectory=/home/{{ run_user }}/cds/
+ExecStart=/home/{{ run_user }}/cds/cds-engine start cdn --config /home/{{ run_user }}/cds/conf.toml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

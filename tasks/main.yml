@@ -1,0 +1,9 @@
+---
+- include_tasks: init.yml
+- include_tasks: config.yml
+- include_tasks: redis_config.yml
+- include_tasks: postgres_config.yml
+- include_tasks: cds_api.yml
+- include_tasks: cds_ui.yml
+- include_tasks: cds_cdn.yml
+- include_tasks: local_hatchery.yml

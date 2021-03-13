@@ -1,0 +1,36 @@
+---
+- name: edit config
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine config edit /home/{{ run_user }}/cds/conf.toml --output /home/{{ run_user }}/cds/conf.toml \
+    api.name=cds \
+    api.url.api={{ api_url }} \
+    api.artifact.mode={{ artifact_mode }}
+  become: true
+
+- name: check if conf file exists
+  stat: 
+    path: /home/{{ run_user }}/cds/.cds_secret_gen
+  register: cds_secret_gen
+
+
+- name: check if conf file exists
+  stat: 
+    path: /home/{{ run_user }}/cds/.ansible_download_workers
+  register: ansible_download_workers
+
+- name: download workers
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine download workers --config /home/{{ run_user }}/cds/conf.toml
+  become: true
+  when: ansible_download_workers.stat.exists == false
+
+- name: download workers init checkmark
+  file:
+    path: /home/{{run_user}}/cds/.ansible_download_workers
+    state: touch
+
+- name: create cds_api service file
+  template: 
+    src: cds-api.service.j2
+    dest: /etc/systemd/system/cds-api.service
+  notify: restart cds-api.service

@@ -1,0 +1,6 @@
+---
+- name: create cds_hatchery service file
+  template: 
+    src: cds-hatchery.service.j2
+    dest: /etc/systemd/system/cds-hatchery.service
+  notify: restart cds-hatchery.service

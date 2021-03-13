@@ -1,0 +1,49 @@
+---
+- name: Create CDS dir
+  file:
+    path: /home/{{ run_user }}/cds/sql
+    state: directory
+    owner: "{{ run_user }}"
+
+- name: edit DB config
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine config edit /home/{{ run_user }}/cds/conf.toml --output /home/{{ run_user }}/cds/conf.toml \
+    databaseMigrate.directory=/home/{{ run_user }}/cds/sql \
+    api.database.host={{ postgres_host }} \
+    api.database.name={{ postgres_name }} \
+    api.database.password={{ postgres_password }} \
+    api.database.user={{ postgres_name }} \
+    api.database.port={{ postgres_port }} 
+  become: true
+
+- name: check if conf file exists
+  stat: 
+    path: /home/{{ run_user }}/cds/.ansible_db_init
+  register: postgres_configured
+  
+- name: check if conf file exists
+  stat: 
+    path: /home/{{ run_user }}/cds/.ansible_sql_init
+  register: ansible_sql_init
+  
+- name: download sql
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine download sql --config /home/{{ run_user }}/cds/conf.toml
+  become: true
+  when: ansible_sql_init.stat.exists == false
+
+- name: Create postgres init checkmark
+  file:
+    path: /home/{{run_user}}/cds/.ansible_sql_init
+    state: touch
+
+- name: init postgres database
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine database upgrade --db-host {{ postgres_host }} --db-user {{ postgres_name }} --db-password {{ postgres_password }} --db-name {{ postgres_name }} --dh-schema public --db-sslmode disable --db-port {{ postgres_port }} --migrate-dir /home/{{ run_user }}/cds/sql/api
+  become: true
+  when: postgres_configured.stat.exists == false
+
+- name: Create postgres init checkmark
+  file:
+    path: /home/{{run_user}}/cds/.ansible_db_init
+    state: touch

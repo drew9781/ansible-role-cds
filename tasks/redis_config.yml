@@ -1,0 +1,7 @@
+---
+- name: edit config
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine config edit /home/{{ run_user }}/cds/conf.toml --output /home/{{ run_user }}/cds/conf.toml \
+    api.cache.redis.host={{ redis_host }} \
+    api.cache.redis.password={{ redis_password }}
+  become: true

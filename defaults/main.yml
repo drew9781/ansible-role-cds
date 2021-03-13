@@ -1,0 +1,15 @@
+---
+run_user: cds
+cds_release: "0.48.0"
+os_type: linux
+arch_type: amd64
+redis_host: 127.0.0.1:26379
+redis_password: password
+
+postgres_host: 127.0.0.1
+postgres_name: cds
+postgres_password: password
+postgres_port: 5432
+
+api_url: api.cds.com
+artifact_mode: local

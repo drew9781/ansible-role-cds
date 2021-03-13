@@ -1,0 +1,34 @@
+---
+- name: Create CDS dir
+  file:
+    path: /home/{{ run_user }}/cds/ui-static
+    state: directory
+    owner: "{{ run_user }}"
+
+- name: edit config
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine config edit /home/{{ run_user }}/cds/conf.toml --output /home/{{ run_user }}/cds/conf.toml \
+    ui.staticdir=/home/{{ run_user }}/cds/ui-static \
+  become: true
+
+- name: check if conf file exists
+  stat: 
+    path: /home/{{ run_user }}/cds/.cds_ui_downloaded
+  register: cds_ui_downloaded
+
+- name: download ui
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine download ui --config /home/{{ run_user }}/cds/conf.toml
+  become: true
+  when: cds_ui_downloaded.stat.exists == false
+
+- name: cds_ui_downloaded init checkmark
+  file:
+    path: /home/{{run_user}}/cds/.cds_ui_downloaded
+    state: touch
+
+- name: create cds_ui service file
+  template: 
+    src: cds-ui.service.j2
+    dest: /etc/systemd/system/cds-ui.service
+  notify: restart cds-ui.service

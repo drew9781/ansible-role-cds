@@ -1,0 +1,34 @@
+---
+- name: Create run_user
+  user:
+    name: "{{ run_user }}"
+
+- name: Create CDS dir
+  file:
+    path: /home/{{run_user}}/cds
+    state: directory
+    owner: "{{ run_user }}"
+
+- name: check if cds-engine binary exists
+  stat: 
+    path: /home/{{ run_user }}/cds/cds-engine
+  register: cds_engine_exists
+
+- name: check if cdsctl binary exists
+  stat: 
+    path: /home/{{ run_user }}/cds/cdsctl
+  register: cdsctl_exists
+
+- name: Download cds-engine
+  get_url:
+    url: https://github.com/ovh/cds/releases/download/{{ cds_release }}/cds-engine-{{ os_type }}-{{ arch_type }}
+    dest: /home/{{ run_user }}/cds/cds-engine
+    mode: 0777
+  when: cds_engine_exists.stat.exists == false
+
+- name: Download cds-ctl
+  get_url:
+    url: https://github.com/ovh/cds/releases/download/{{ cds_release }}/cdsctl-{{ os_type }}-{{ arch_type }}
+    dest: /home/{{ run_user }}/cds/cdsctl
+    mode: 0777
+  when: cdsctl_exists.stat.exists == false

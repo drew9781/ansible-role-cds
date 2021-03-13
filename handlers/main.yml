@@ -1,0 +1,24 @@
+---
+- name: restart cds-api.service
+  systemd: 
+    name: cds-api
+    state: restarted
+    daemon_reload: yes
+
+- name: restart cds-ui.service
+  systemd: 
+    name: cds-ui
+    state: restarted
+    daemon_reload: yes
+
+- name: restart cds-cdn.service
+  systemd: 
+    name: cds-cdn
+    state: restarted
+    daemon_reload: yes
+
+- name: restart cds-hatchery.service
+  systemd: 
+    name: cds-hatchery
+    state: restarted
+    daemon_reload: yes

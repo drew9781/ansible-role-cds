@@ -1,0 +1,35 @@
+---
+- name: check if conf file exists
+  stat: 
+    path: /home/{{ run_user }}/cds/conf.toml
+  register: conf_exists
+
+- name: Generate config
+  shell: /home/{{ run_user }}/cds/cds-engine config new > /home/{{ run_user }}/cds/conf.toml
+  become: true
+  when: conf_exists.stat.exists == false
+
+- name: Create CDS/download dir
+  file:
+    path: /home/{{run_user}}/cds/download
+    state: directory
+
+- name: Create CDS/artifacts dir
+  file:
+    path: /home/{{run_user}}/cds/artifacts 
+    state: directory
+
+- name: Create CDS/hatchery-basedir dir
+  file:
+    path: /home/{{run_user}}/cds/hatchery-basedir
+    state: directory
+
+- name: edit config
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine config edit /home/{{ run_user }}/cds/conf.toml --output /home/{{ run_user }}/cds/conf.toml \
+    api.artifact.local.baseDirectory=/home/{{ run_user }}/cds/artifacts \
+    api.directories.download=/home/{{ run_user }}/cds/download \
+    hatchery.local.basedir=/home/{{ run_user }}/cds/hatchery-basedir \
+    api.defaultArch={{ arch_type }} \ 
+    api.defaultOS={{ os_type }}
+  become: true

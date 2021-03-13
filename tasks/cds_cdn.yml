@@ -1,0 +1,32 @@
+- name: Create CDS/hatchery-basedir dir
+  file:
+    path: /home/{{run_user}}/cds/cdn-storage
+    state: directory
+- name: Create CDS/hatchery-basedir dir
+  file:
+    path: /home/{{run_user}}/cds/cdn-buffer
+    state: directory
+
+- name: edit config
+  shell: |
+    /home/{{ run_user }}/cds/cds-engine config edit /home/{{ run_user }}/cds/conf.toml --output /home/{{ run_user }}/cds/conf.toml \
+    cdn.cache.redis.host={{ redis_host }} \
+    cdn.cache.redis.password={{ redis_password }} \
+    cdn.storageUnits.buffers.redis.redis.host={{ redis_host }} \
+    cdn.storageUnits.buffers.redis.redis.password={{ redis_password }} \
+    cdn.storageUnits.buffers.local-buffer.local.path=/tmp/cdn-buffer \
+    cdn.storageUnits.storages.local.local.path=/home/{{ run_user }}/cdn-storage \
+    cdn.storageUnits.storages.cds.cds.host=http://localhost:8081 \
+    cdn.database.host=cds \
+    cdn.publicTCP=cds.internal.aenglema.com:8090 \
+    cdn.api.http.url=http://cds.internal.aenglema.com:8081 \
+    cdn.api.http.url=http://cds.internal.aenglema.com:8081 \
+    cdn.name=cdn \
+    cdn.url=http://cds.internal.aenglema.com:8089 
+  become: true
+
+- name: create cds_cdn service file
+  template: 
+    src: cds-cdn.service.j2
+    dest: /etc/systemd/system/cds-cdn.service
+  notify: restart cds-cdn.service
